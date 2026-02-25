@@ -7,7 +7,7 @@ error FundMe__NotOwner();
 error FundMe__AmountTooSmall();
 
 contract FundMe {
-    using PriceConverter for uin256;
+    using PriceConverter for uint256;
 
     uint256 public constant MIN_USD = 5 * 10 ** 18;
     address public immutable I_OWNER;
