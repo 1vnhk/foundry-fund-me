@@ -41,17 +41,23 @@ contract FundMeTest is Test {
         fundMe.fund();
     }
 
-    function testFundUpdatesBalances() public {
+    modifier funded() {
         vm.prank(USER);
         fundMe.fund{value: SEND_VALUE}();
+        _;
+    }
 
+    function testFundUpdatesBalances() public funded {
         assertEq(fundMe.getFunderToAmount(USER), 1 ether);
     }
 
-    function testAddsFunderToArrayOfFunders() public {
-        vm.prank(USER);
-        fundMe.fund{value: SEND_VALUE}();
-
+    function testAddsFunderToArrayOfFunders() public funded {
         assertEq(fundMe.getFunder(0), USER);
+    }
+
+    function testOnlyOwnerCanWithdraw() public funded {
+        vm.prank(USER);
+        vm.expectRevert();
+        fundMe.withdraw();
     }
 }
