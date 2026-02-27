@@ -9,7 +9,8 @@ contract FundMeTest is Test {
     FundMe fundMe;
 
     address USER = makeAddr("user");
-    uint256 constant STARTING_BALANCE = 10 ether;
+    uint256 constant STARTING_BALANCE = 100 ether;
+    uint256 constant SEND_VALUE = 1 ether;
 
     function setUp() external {
         DeployFundMe deploy = new DeployFundMe();
@@ -42,10 +43,15 @@ contract FundMeTest is Test {
 
     function testFundUpdatesBalances() public {
         vm.prank(USER);
-        uint256 amount = 1;
+        fundMe.fund{value: SEND_VALUE}();
 
-        fundMe.fund{value: amount}();
-        assertEq(fundMe.getFunderToAmount(USER), 1);
+        assertEq(fundMe.getFunderToAmount(USER), 1 ether);
+    }
+
+    function testAddsFunderToArrayOfFunders() public {
+        vm.prank(USER);
+        fundMe.fund{value: SEND_VALUE}();
+
         assertEq(fundMe.getFunder(0), USER);
     }
 }
