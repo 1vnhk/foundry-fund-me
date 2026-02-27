@@ -8,6 +8,7 @@
 pragma solidity ^0.8.33;
 
 import {Script} from "forge-std/Script.sol";
+import {MockV3Aggregator} from "../test/mocks/MockV3Aggregator.sol";
 
 struct NetworkConfig {
     address priceFeed; // ETH/USD price feed address
@@ -29,7 +30,6 @@ contract HelperConfig is Script {
     }
 
     function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
-        // price feed address
         NetworkConfig memory config = NetworkConfig({
             priceFeed: 0x694AA1769357215DE4FAC081bf1f309aDC325306
         });
@@ -43,7 +43,17 @@ contract HelperConfig is Script {
         return config;
     }
 
-    function getAnvilEthConfig() public pure returns (NetworkConfig memory) {
-        // price feed address
+    function getAnvilEthConfig() public returns (NetworkConfig memory) {
+        // 1. deploy the mocks
+        // 2. return the mock addresses
+
+        vm.startBroadcast();
+        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(8, 2000e8);
+        vm.stopBroadcast();
+
+        NetworkConfig memory config = NetworkConfig({
+            priceFeed: address(mockPriceFeed)
+        });
+        return config;
     }
 }
