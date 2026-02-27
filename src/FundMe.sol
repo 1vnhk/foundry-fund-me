@@ -13,8 +13,8 @@ contract FundMe {
     uint256 public constant MIN_USD = 5 * 10 ** 18;
     address public immutable I_OWNER;
 
-    mapping(address => uint256) public funderToAmount;
-    address[] public funders;
+    mapping(address => uint256) private s_funderToAmount;
+    address[] private s_funders;
 
     AggregatorV3Interface private s_priceFeed;
 
@@ -29,21 +29,21 @@ contract FundMe {
         }
         // check min usd and revert
         // include oracle from chainlink. Build from scratch
-        funders.push(msg.sender);
-        funderToAmount[msg.sender] += msg.value;
+        s_funders.push(msg.sender);
+        s_funderToAmount[msg.sender] += msg.value;
     }
 
     function withdraw() public onlyOwner {
         for (
             uint256 funderIndex = 0;
-            funderIndex < funders.length;
+            funderIndex < s_funders.length;
             funderIndex++
         ) {
-            address funder = funders[funderIndex];
-            funderToAmount[funder] = 0;
+            address funder = s_funders[funderIndex];
+            s_funderToAmount[funder] = 0;
         }
 
-        funders = new address[](0);
+        s_funders = new address[](0);
 
         (bool callSuccess, ) = payable(msg.sender).call{
             value: address(this).balance
@@ -72,5 +72,14 @@ contract FundMe {
 
     fallback() external payable {
         fund();
+    }
+
+    // view / pure functions
+    function getFunderToAmount(address funder) external view returns (uint256) {
+        return s_funderToAmount[funder];
+    }
+
+    function getFunder(uint256 index) external view returns (address) {
+        return s_funders[index];
     }
 }
