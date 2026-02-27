@@ -47,6 +47,10 @@ contract HelperConfig is Script {
     }
 
     function getAnvilEthConfig() public returns (NetworkConfig memory) {
+        // prevent creation of mock contract and config if exist
+        if (activeNetworkConfig.priceFeed != address(0)) {
+            return activeNetworkConfig;
+        }
         // 1. deploy the mocks
         // 2. return the mock addresses
 
