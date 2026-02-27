@@ -47,6 +47,10 @@ contract FundMe {
         require(callSuccess, "Call failed");
     }
 
+    function priceFeedVersion() public view returns (uint256) {
+        return PriceConverter.getVersion();
+    }
+
     modifier onlyOwner() {
         _onlyOwner();
         _;
