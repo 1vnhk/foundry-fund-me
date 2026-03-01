@@ -6,6 +6,7 @@ import {PriceConverter} from "./PriceConverter.sol";
 
 error FundMe__NotOwner();
 error FundMe__AmountTooSmall();
+error FundMe__CallFailed();
 
 contract FundMe {
     using PriceConverter for uint256;
@@ -31,6 +32,28 @@ contract FundMe {
         // include oracle from chainlink. Build from scratch
         s_funders.push(msg.sender);
         s_funderToAmount[msg.sender] += msg.value;
+    }
+
+    function cheaperWithdraw() public onlyOwner {
+        uint256 fundersLength = s_funders.length;
+
+        for (
+            uint256 funderIndex = 0;
+            funderIndex < fundersLength;
+            funderIndex++
+        ) {
+            address funder = s_funders[funderIndex];
+            s_funderToAmount[funder] = 0;
+        }
+
+        s_funders = new address[](0);
+
+        (bool callSuccess, ) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
+        if (!callSuccess) {
+            revert FundMe__CallFailed();
+        }
     }
 
     function withdraw() public onlyOwner {
