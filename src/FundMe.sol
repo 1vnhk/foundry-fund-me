@@ -12,7 +12,7 @@ contract FundMe {
     using PriceConverter for uint256;
 
     uint256 public constant MIN_USD = 5 * 10 ** 18;
-    address private immutable I_OWNER;
+    address private immutable i_owner;
 
     mapping(address => uint256) private s_funderToAmount;
     address[] private s_funders;
@@ -20,7 +20,7 @@ contract FundMe {
     AggregatorV3Interface private s_priceFeed;
 
     constructor(address priceFeed) {
-        I_OWNER = msg.sender;
+        i_owner = msg.sender;
         s_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
@@ -28,9 +28,10 @@ contract FundMe {
         if (msg.value.getConversionRate(s_priceFeed) <= MIN_USD) {
             revert FundMe__AmountTooSmall();
         }
-        // check min usd and revert
-        // include oracle from chainlink. Build from scratch
-        s_funders.push(msg.sender);
+
+        if (s_funderToAmount[msg.sender] == 0) {
+            s_funders.push(msg.sender);
+        }
         s_funderToAmount[msg.sender] += msg.value;
     }
 
@@ -66,7 +67,7 @@ contract FundMe {
     }
 
     function _onlyOwner() internal view {
-        if (msg.sender != I_OWNER) {
+        if (msg.sender != i_owner) {
             revert FundMe__NotOwner();
         }
     }
@@ -89,6 +90,6 @@ contract FundMe {
     }
 
     function getOwner() external view returns (address) {
-        return I_OWNER;
+        return i_owner;
     }
 }
