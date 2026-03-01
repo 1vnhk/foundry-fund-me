@@ -7,6 +7,7 @@ import {PriceConverter} from "./PriceConverter.sol";
 error FundMe__NotOwner();
 error FundMe__AmountTooSmall();
 error FundMe__CallFailed();
+error FundMe__InvalidPriceFeed();
 
 contract FundMe {
     using PriceConverter for uint256;
@@ -59,6 +60,13 @@ contract FundMe {
 
     function priceFeedVersion() public view returns (uint256) {
         return PriceConverter.getVersion(s_priceFeed);
+    }
+
+    function setPriceFeed(address newPriceFeed) external onlyOwner {
+        if (newPriceFeed == address(0)) {
+            revert FundMe__InvalidPriceFeed();
+        }
+        s_priceFeed = AggregatorV3Interface(newPriceFeed);
     }
 
     modifier onlyOwner() {
