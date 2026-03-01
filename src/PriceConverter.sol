@@ -9,7 +9,6 @@ library PriceConverter {
     function getPrice(
         AggregatorV3Interface priceFeed
     ) internal view returns (uint256) {
-        // Address of the Chainlink oracle ETH/USD on Sepolia: 0x694AA1769357215DE4FAC081bf1f309aDC325306
         (, int256 price, , , ) = priceFeed.latestRoundData();
         if (price <= 0) {
             revert PriceConverter__InvalidPrice();
@@ -29,7 +28,7 @@ library PriceConverter {
 
     function getVersion(
         AggregatorV3Interface priceFeed
-    ) public view returns (uint256) {
+    ) internal view returns (uint256) {
         return priceFeed.version();
     }
 }
